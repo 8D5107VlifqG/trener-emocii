@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1022">
+<title>Тренажёр эмоций</title>
+
+<style>
+@font-face { font-family: "Golos Text"; font-style: normal; font-weight: 400 900; font-display: swap; src: url(fonts/golos-text-cyrillic-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Golos Text"; font-style: normal; font-weight: 400 900; font-display: swap; src: url(fonts/golos-text-latin-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 200 900; font-display: swap; src: url(fonts/literata-cyrillic-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 200 900; font-display: swap; src: url(fonts/literata-latin-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root {
+  --bg: #f3ebf7;
+  --bg2: #e3d0ee;
+  --surface: #fbf6fd;
+  --ink: #2a1736;
+  --muted: #7b6689;
+  --line: #d9c8e4;
+  --accent: #8a3fb0;
+  --accent-ink: #ffffff;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1a1022;
+    --bg2: #3a1f4d;
+    --surface: #261735;
+    --ink: #f0e6f5;
+    --muted: #a998b5;
+    --line: #3b2850;
+    --accent: #c88be6;
+    --accent-ink: #1a0f24;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1a1022;
+  --bg2: #3a1f4d;
+  --surface: #261735;
+  --ink: #f0e6f5;
+  --muted: #a998b5;
+  --line: #3b2850;
+  --accent: #c88be6;
+  --accent-ink: #1a0f24;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(90% 50% at 50% -8%, var(--bg2), transparent 72%);
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.app { height: 100%; display: flex; flex-direction: column; max-width: 760px; margin: 0 auto; padding: 0 20px; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 8px; color: var(--muted); font-size: 14px; }
+.top button { background: none; border: 1px solid var(--line); color: var(--muted); font: inherit; padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+.progress { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+
+main {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 34px; text-align: center; padding: 8px 0 124px; min-height: 0; overflow-y: auto;
+}
+.emotion {
+  margin: 0;
+  font-family: "Literata", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(30px, 9vw, 60px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  animation: appear .28s ease-out;
+}
+@keyframes appear { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .emotion { animation: none; } }
+.lead { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.4; }
+
+.actions { position: fixed; left: 0; right: 0; margin: 0 auto; max-width: 760px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); padding: 0 16px; display: flex; gap: 8px; }
+.actions button { height: 64px; border-radius: 20px; font: inherit; cursor: pointer; }
+.btn2 { padding: 0 18px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 16px; }
+.main { flex: 1; min-width: 120px; border: 0; background: var(--accent); color: var(--accent-ink); font-size: 21px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+.main:active, .btn2:active { transform: scale(.97); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.hint { color: var(--muted); font-size: 14px; margin: 0; }
+
+.sheet { position: fixed; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 10; padding-top: env(safe-area-inset-top, 0px); }
+.sheet.open { display: flex; }
+.sheet-inner { max-width: 760px; width: 100%; margin: 0 auto; padding: 0 20px 40px; overflow-y: auto; flex: 1; }
+.sheet h2 { font-family: "Literata", Georgia, serif; font-weight: 500; font-size: 26px; margin: 20px 0 12px; }
+.sheet .bar { display: flex; justify-content: flex-end; padding: 14px 20px 0; max-width: 760px; width: 100%; margin: 0 auto; }
+.bar button, .btn { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; font: inherit; font-size: 16px; padding: 12px 18px; cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
+.note { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 8px 0; }
+.status { margin: 8px 0; font-size: 15px; color: var(--accent); }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 6px 0 10px; }
+.seg button { flex: 1; background: var(--surface); color: var(--ink); border: 0; font: inherit; font-size: 18px; font-weight: 600; padding: 14px 8px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.sel { background: var(--accent); color: var(--accent-ink); }
+.stepper { display: flex; align-items: center; gap: 12px; margin: 6px 0 14px; }
+.stepper button { width: 56px; height: 56px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 28px; cursor: pointer; }
+.stepper .val { flex: 1; text-align: center; font-size: 34px; font-weight: 600; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); height: 32px; }
+.scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <span id="counterTop"></span>
+    <button id="btnSettings" type="button">Настройки</button>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
+  <main id="stage" aria-live="polite"></main>
+</div>
+
+<div class="actions">
+  <button class="btn2" id="btnBack" type="button">Назад</button>
+  <button class="btn2" id="btnSkip" type="button" style="display:none">Далее</button>
+  <button class="main" id="btnMain" type="button">Далее</button>
+</div>
+
+<div class="sheet" id="setSheet" role="dialog" aria-label="Настройки">
+  <div class="bar"><button type="button" id="btnClose">Закрыть</button></div>
+  <div class="sheet-inner">
+    <h2>Режим показа</h2>
+    <div class="seg" id="modeSeg">
+      <button type="button" data-m="manual">По списку</button>
+      <button type="button" data-m="random">Случайно</button>
+    </div>
+    <p class="note" id="modeNote"></p>
+
+    <div id="intervalBox">
+      <h2>Интервал</h2>
+      <div class="stepper">
+        <button type="button" id="intMinus" aria-label="Меньше">−</button>
+        <div class="val" id="intVal">5 с</div>
+        <button type="button" id="intPlus" aria-label="Больше">+</button>
+      </div>
+      <input type="range" id="intRange" min="2" max="30" step="1" aria-label="Интервал в секундах">
+      <div class="scale"><span>2 с</span><span>30 с</span></div>
+    </div>
+
+    <h2>Загрузить свой список</h2>
+    <p class="note">Файл .txt, одна эмоция в строке. Повторы убираются.</p>
+    <div class="row"><button class="btn primary" id="btnPick" type="button">Выбрать файл</button></div>
+    <input type="file" id="filePick" accept=".txt,text/plain" hidden>
+    <div class="status" id="loadStatus"></div>
+
+    <h2>Прогресс</h2>
+    <div class="row">
+      <button class="btn" id="btnRestart" type="button">Начать сначала</button>
+      <button class="btn" id="btnBuiltin" type="button">Вернуть встроенный список</button>
+      <button class="btn" id="btnTheme" type="button">Тема: тёмная</button>
+    </div>
+    <p class="note" id="info"></p>
+  </div>
+</div>
+
+<script>
+var DEFAULT_ITEMS = ["Радость", "Удивление", "Отвращение", "Страх", "Печаль", "Гнев", "Покинутость", "Смятение", "Озадаченность", "Одухотворенность", "Великодушие", "Нежность", "Сочувствие", "Симпатия", "Дружелюбие", "Уважение", "Безопасность", "Привязанность", "Любовь", "Благоговение", "Восхищение", "Обожание", "Расположение", "Безмятежность", "Прощение", "Восприимчивость", "Сдержанность", "Комфорт", "Довольство", "Расслабленность", "Мирность", "Облегчение", "Удовлетворенность", "Спокойствие", "Живость", "Оживленность", "Интерес", "Увлеченность", "Заинтересованность", "Надежда", "Признательность", "Оцененность по достоинству", "Очарование", "Мечтательность", "Безобидность", "Удовольствие", "Удачливость", "Триумф", "Забавность", "Блаженство", "Счастье", "Сентиментальность", "Гордость", "Оптимизм", "Готовность", "Дерзость", "Уверенность в себе", "Решимость", "Твердая уверенность", "Дух соперничества", "Трепет", "Эйфория", "Помешательство", "Страсть", "Возбужденность", "Взволнованность", "Энтузиазм", "Сильное желание", "Впечатлительность", "Потрясение", "Изумление", "Остолбенение", "Поражение", "Шок", "Неловкость", "Отчужденность", "Скорбь", "Рефлексия", "Укоры совести", "Сожаление", "Тяжесть", "Неудобство", "Смущение", "Ущемленность", "Униженность", "Вина", "Стыд", "Хандра", "Тоска", "Вспыльчивость", "Нетерпеливость", "Сварливость", "Упадок сил", "Расстройство", "Истощение", "Скука", "Самодовольство", "Апатия", "Глупость", "Усталость", "Удрученность", "Нелюдимость", "Болезненность", "Чувство отсутствия к вам любви", "Застенчивость", "Отсталость", "Боль", "Разочарование", "Подавленность", "Серьезность", "Угрюмость", "Ранимость", "Слабость", "Беспомощность", "Опустошенность", "Депрессия", "Отчаяние", "Мрачность", "Угнетенность", "Горе", "Грусть", "Изолированность", "Одиночество", "Ощущение ловушки", "Бессвязность", "Дезориентация", "Потерянность", "Запутанность", "Ощущение тупика", "Уныние", "Опасение", "Ошеломленность", "Ощущение угрозы", "Подверженность навязчивой идее", "Ужас", "Боязнь", "Стресс", "Волнение", "Тревога", "Испуг", "Обеспокоенность", "Нервозность", "Тревожность", "Озабоченность", "Настороженность", "Циничность", "Подозрительность", "Уязвленность", "Презрение", "Неповиновение", "Надменность", "Зависть", "Сопротивление", "Бунтарство", "Воинственность", "Оскорбленность", "Мстительность", "Раздражение", "Досада", "Сердитость", "Обида", "Ненависть", "Возмущение", "Злость"];
+
+var KEY = "emotiontrainer.v1";
+var state = { items: DEFAULT_ITEMS, pos: 0, theme: "dark", mode: "manual", interval: 5, src: "builtin" };
+var stage = document.getElementById("stage");
+
+/* ---------- сохранение ---------- */
+function save() {
+  try {
+    var s = { pos: state.pos, theme: state.theme, mode: state.mode, interval: state.interval, src: state.src };
+    if (state.src === "custom") s.items = state.items;
+    localStorage.setItem(KEY, JSON.stringify(s));
+  } catch (e) {}
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (!s) return;
+    if (s.src === "custom" && s.items && s.items.length) { state.items = s.items; state.src = "custom"; }
+    state.pos = s.pos || 0;
+    state.theme = s.theme || "dark";
+    state.mode = s.mode === "random" ? "random" : "manual";
+    var iv = parseInt(s.interval, 10);
+    state.interval = (iv >= 2 && iv <= 30) ? iv : 5;
+  } catch (e) {}
+}
+function fixPos() {
+  if (state.pos < 0 || state.pos > state.items.length) state.pos = 0;
+  if (state.mode === "random" && state.pos >= state.items.length) state.pos = 0;
+}
+
+/* ---------- вспомогательное ---------- */
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function el(id) { return document.getElementById(id); }
+
+/* ---------- случайный режим ---------- */
+var cycleShown = 0, deck = [], shownHist = [], running = false, nextAt = 0, remaining = 0, ticker = null;
+
+function shuffle(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function drawIndex() {
+  var n = state.items.length;
+  if (!deck.length) {
+    cycleShown = 0;
+    deck = shuffle(Array.apply(null, Array(n)).map(function (_, i) { return i; }));
+    if (n > 1 && deck[deck.length - 1] === state.pos) { var t = deck[0]; deck[0] = deck[deck.length - 1]; deck[deck.length - 1] = t; }
+  }
+  cycleShown++;
+  return deck.pop();
+}
+function randomNext() {
+  if (!state.items.length) return;
+  shownHist.push(state.pos);
+  if (shownHist.length > 300) shownHist.shift();
+  state.pos = drawIndex();
+  save(); render();
+}
+function randomBack() {
+  if (!shownHist.length) return;
+  state.pos = shownHist.pop();
+  if (cycleShown > 0) cycleShown--;
+  save(); render();
+}
+
+function updateBar(frac) {
+  var b = el("tbar");
+  if (b) b.style.width = Math.max(0, Math.min(1, frac)) * 100 + "%";
+}
+function tick() {
+  if (!running) return;
+  var total = state.interval * 1000;
+  var left = nextAt - Date.now();
+  if (left <= 0) { nextAt = Date.now() + total; left = total; randomNext(); }
+  updateBar(left / total);
+}
+function startRun() {
+  if (state.mode !== "random" || !state.items.length) return;
+  running = true;
+  nextAt = Date.now() + (remaining > 0 ? remaining : state.interval * 1000);
+  remaining = 0;
+  if (ticker) clearInterval(ticker);
+  ticker = setInterval(tick, 60);
+  setControls();
+  var t = document.querySelector(".timer"); if (t) t.classList.remove("paused");
+}
+function pauseRun() {
+  if (running) remaining = Math.max(0, nextAt - Date.now());
+  running = false;
+  if (ticker) { clearInterval(ticker); ticker = null; }
+  setControls();
+  var t = document.querySelector(".timer"); if (t) t.classList.add("paused");
+}
+function toggleRun() { if (running) pauseRun(); else startRun(); }
+function resetCountdown() {
+  remaining = 0;
+  if (running) nextAt = Date.now() + state.interval * 1000;
+  updateBar(1);
+}
+
+/* ---------- отрисовка ---------- */
+function setControls(finish) {
+  var random = state.mode === "random";
+  el("btnSkip").style.display = random ? "" : "none";
+  var main = el("btnMain");
+  if (random) main.textContent = running ? "Пауза" : (remaining > 0 ? "Продолжить" : "Старт");
+  else main.textContent = finish ? "Заново" : "Далее";
+  var canBack = random ? shownHist.length > 0 : (finish || state.pos > 0);
+  el("btnBack").style.visibility = canBack ? "visible" : "hidden";
+}
+
+function render() {
+  if (!state.items.length) {
+    stage.innerHTML = '<p class="emotion">Нет эмоций</p><p class="hint">Откройте «Настройки» и загрузите .txt файл.</p>';
+    el("counterTop").textContent = "";
+    return;
+  }
+  var n = state.items.length;
+  if (state.mode === "manual" && state.pos >= n) { renderFinish(); return; }
+  var random = state.mode === "random";
+  stage.innerHTML = '<h1 class="emotion">' + esc(state.items[state.pos]) + '</h1>';
+  if (random) {
+    el("counterTop").textContent = "Случайно, каждые " + state.interval + " с  (" + cycleShown + " из " + n + ")";
+    el("bar").style.width = (cycleShown / n * 100) + "%";
+    if (running) tick(); else updateBar(remaining > 0 ? remaining / (state.interval * 1000) : 1);
+  } else {
+    el("counterTop").textContent = (state.pos + 1) + " из " + n;
+    el("bar").style.width = ((state.pos + 1) / n * 100) + "%";
+  }
+  setControls(false);
+  stage.scrollTop = 0;
+}
+function renderFinish() {
+  stage.innerHTML = '<h1 class="emotion">Круг пройден</h1><p class="lead">Вы прошли все ' + state.items.length + ' эмоций.</p>';
+  el("counterTop").textContent = state.items.length + " из " + state.items.length;
+  el("bar").style.width = "100%";
+  setControls(true);
+}
+
+/* ---------- кнопки ---------- */
+function manualNext() {
+  if (!state.items.length) return;
+  if (state.pos >= state.items.length) state.pos = 0; else state.pos++;
+  save(); render();
+}
+function manualBack() {
+  if (!state.items.length) return;
+  if (state.pos >= state.items.length) state.pos = state.items.length - 1;
+  else if (state.pos > 0) state.pos--;
+  save(); render();
+}
+function onMain() { if (state.mode === "random") toggleRun(); else manualNext(); }
+function onSkip() { if (state.mode === "random") { randomNext(); resetCountdown(); } else manualNext(); }
+function onBack() { if (state.mode === "random") { randomBack(); resetCountdown(); } else manualBack(); }
+el("btnMain").addEventListener("click", onMain);
+el("btnSkip").addEventListener("click", onSkip);
+el("btnBack").addEventListener("click", onBack);
+document.addEventListener("keydown", function (e) {
+  if (el("setSheet").classList.contains("open")) return;
+  if (e.key === "ArrowRight") { e.preventDefault(); onSkip(); }
+  else if (e.key === " " || e.key === "Enter") { e.preventDefault(); onMain(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); onBack(); }
+});
+
+/* ---------- настройки ---------- */
+var resumeAfter = false;
+function syncSettings() {
+  document.querySelectorAll("#modeSeg button").forEach(function (b) {
+    b.className = b.getAttribute("data-m") === state.mode ? "sel" : "";
+  });
+  el("intervalBox").style.display = state.mode === "random" ? "" : "none";
+  el("modeNote").textContent = state.mode === "random"
+    ? "Эмоции меняются сами в случайном порядке: каждая показывается по одному разу, потом круг начинается заново. Внизу кнопки «Старт» и «Пауза»."
+    : "Эмоции идут по списку, по одной за нажатие кнопки «Далее».";
+  el("intVal").textContent = state.interval + " с";
+  el("intRange").value = state.interval;
+  el("info").textContent = "Эмоций в списке: " + state.items.length + ".";
+}
+function openSettings() {
+  resumeAfter = running;
+  if (running) pauseRun();
+  syncSettings();
+  el("setSheet").classList.add("open");
+}
+function closeSettings() {
+  el("setSheet").classList.remove("open");
+  render();
+  if (resumeAfter && state.mode === "random") startRun();
+  resumeAfter = false;
+}
+function setMode(m) {
+  if (m === state.mode) return;
+  state.mode = m;
+  cycleShown = 0; deck = []; shownHist = []; remaining = 0;
+  if (m === "random") {
+    if (state.pos >= state.items.length) state.pos = 0;
+    resumeAfter = true;
+  } else {
+    pauseRun(); resumeAfter = false;
+  }
+  save(); syncSettings();
+}
+function setInterval_(v) {
+  v = Math.max(2, Math.min(30, v));
+  state.interval = v;
+  remaining = 0;
+  save(); syncSettings();
+}
+el("btnSettings").addEventListener("click", openSettings);
+el("btnClose").addEventListener("click", closeSettings);
+document.querySelectorAll("#modeSeg button").forEach(function (b) {
+  b.addEventListener("click", function () { setMode(b.getAttribute("data-m")); });
+});
+el("intMinus").addEventListener("click", function () { setInterval_(state.interval - 1); });
+el("intPlus").addEventListener("click", function () { setInterval_(state.interval + 1); });
+el("intRange").addEventListener("input", function () { setInterval_(parseInt(this.value, 10)); });
+
+el("btnRestart").addEventListener("click", function () {
+  pauseRun(); cycleShown = 0; deck = []; shownHist = []; remaining = 0; resumeAfter = false;
+  state.pos = 0; save(); el("setSheet").classList.remove("open"); render();
+});
+el("btnBuiltin").addEventListener("click", function () {
+  pauseRun(); cycleShown = 0; deck = []; shownHist = []; remaining = 0; resumeAfter = false;
+  state.items = DEFAULT_ITEMS; state.src = "builtin"; state.pos = 0;
+  save(); el("setSheet").classList.remove("open"); render();
+});
+
+function applyTheme() {
+  var r = document.documentElement;
+  if (state.theme === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", state.theme);
+  el("btnTheme").textContent = "Тема: " + ({auto:"авто", light:"светлая", dark:"тёмная"})[state.theme];
+}
+el("btnTheme").addEventListener("click", function () {
+  state.theme = state.theme === "dark" ? "light" : state.theme === "light" ? "auto" : "dark";
+  applyTheme(); save();
+});
+
+/* ---------- загрузка своего списка ---------- */
+function decode(buf) {
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); }
+  catch (e) { return new TextDecoder("windows-1251").decode(buf); }
+}
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+var lastDupes = 0;
+function parseEmotions(text) {
+  var seen = {}, out = [];
+  lastDupes = 0;
+  text.replace(/^\uFEFF/, "").split(/\r?\n/).forEach(function (raw) {
+    var s = cap(raw.replace(/\s+/g, " ").trim());
+    if (!s) return;
+    var k = s.toLowerCase().replace(/ё/g, "е");
+    if (seen[k]) { lastDupes++; return; }
+    seen[k] = 1; out.push(s);
+  });
+  return out;
+}
+var filePick = el("filePick");
+el("btnPick").addEventListener("click", function () { filePick.click(); });
+filePick.addEventListener("change", function () {
+  var f = filePick.files[0], status = el("loadStatus");
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () {
+    var items = parseEmotions(decode(r.result));
+    if (!items.length) { status.textContent = "В файле не нашлось эмоций."; return; }
+    pauseRun(); cycleShown = 0; deck = []; shownHist = []; remaining = 0; resumeAfter = false;
+    state.items = items; state.src = "custom"; state.pos = 0;
+    save(); syncSettings(); render();
+    status.textContent = "Готово: эмоций — " + items.length + (lastDupes ? ", повторов убрано — " + lastDupes : "") + ".";
+  };
+  r.onerror = function () { status.textContent = "Не удалось прочитать файл."; };
+  r.readAsArrayBuffer(f);
+  filePick.value = "";
+});
+
+load(); fixPos(); applyTheme(); render();
+</script>
+</body>
+</html>
